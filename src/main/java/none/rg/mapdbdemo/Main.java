@@ -10,23 +10,25 @@ import com.google.common.base.*;
 public class Main {
 
     void run() {
-        DB db = DBMaker.newFileDB(new File("testdb/db")).closeOnJvmShutdown().make();
-        ConcurrentMap<Integer, String> map = db.getHashMap("files");
+        DB db = DBMaker.newFileDB(new File("testdb/db"))
+            .cacheDisable()
+            .closeOnJvmShutdown().make();
+        ConcurrentMap<Integer, byte[]> map = db.getHashMap("files");
         loadFiles(db, map, "testdata");
-        db.commit();
+        db.close();
     }
     
-    void loadFiles(DB db, Map<Integer, String> map, String dirName) {
+    void loadFiles(DB db, Map<Integer, byte[]> map, String dirName) {
         int i = 0;
         for (File file : new File(dirName).listFiles()) {
             String name = file.getName();
             int num = Integer.parseInt(name.replaceFirst("\\..*", ""));
             try {
-                String content = Files.toString(file, Charsets.UTF_8);
+                byte[] content = Files.toByteArray(file);
                 map.put(num, content);
-                db.commit();
                 i++;
-                if (i % 10 == 0) {
+                if (i % 50 == 0) {
+                    db.commit();
                     System.out.println(i);
                 }
             } catch (IOException e) {

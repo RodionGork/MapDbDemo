@@ -1,7 +1,7 @@
 MapDbDemo
 =========
 
-MapDB demo application.
+[MapDB](http://www.mapdb.org) demo application.
 
 In prototypical state.
 
